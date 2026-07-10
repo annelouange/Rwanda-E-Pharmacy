@@ -1,0 +1,108 @@
+export const medicines = [
+  {
+    id: 'med_amlodipine',
+    name: 'Amlodipine',
+    genericName: 'Amlodipine',
+    category: 'Hypertension',
+    prescriptionRequired: true,
+  },
+  {
+    id: 'med_metformin',
+    name: 'Metformin',
+    genericName: 'Metformin',
+    category: 'Diabetes',
+    prescriptionRequired: true,
+  },
+  {
+    id: 'med_paracetamol',
+    name: 'Paracetamol',
+    genericName: 'Acetaminophen',
+    category: 'Pain relief',
+    prescriptionRequired: false,
+  },
+  {
+    id: 'med_salbutamol',
+    name: 'Salbutamol',
+    genericName: 'Albuterol',
+    category: 'Respiratory',
+    prescriptionRequired: true,
+  },
+  {
+    id: 'med_insulin',
+    name: 'Insulin',
+    genericName: 'Insulin',
+    category: 'Diabetes',
+    prescriptionRequired: true,
+  },
+]
+
+export const pharmacies = [
+  {
+    id: 'pharm_kigali_care',
+    name: 'Kigali Care Pharmacy',
+    district: 'Kigali',
+    sector: 'Nyarugenge',
+    latitude: -1.9509,
+    longitude: 30.0589,
+    isVerified: true,
+    acceptedInsurance: ['Mutuelle', 'RSSB', 'Private'],
+    allowsDelivery: true,
+  },
+  {
+    id: 'pharm_huye_health',
+    name: 'Huye Health Pharmacy',
+    district: 'Huye',
+    sector: 'Ngoma',
+    latitude: -2.5967,
+    longitude: 29.7394,
+    isVerified: true,
+    acceptedInsurance: ['Mutuelle', 'MMI'],
+    allowsDelivery: false,
+  },
+  {
+    id: 'pharm_musanze_life',
+    name: 'Musanze Life Pharmacy',
+    district: 'Musanze',
+    sector: 'Muhoza',
+    latitude: -1.4998,
+    longitude: 29.6348,
+    isVerified: true,
+    acceptedInsurance: ['RSSB', 'MMI', 'Private'],
+    allowsDelivery: true,
+  },
+]
+
+export const inventory = [
+  {
+    id: 'inv_1',
+    medicineId: 'med_amlodipine',
+    pharmacyId: 'pharm_kigali_care',
+    quantity: 38,
+    price: 3200,
+    updatedAt: '12 min ago',
+  },
+  {
+    id: 'inv_2',
+    medicineId: 'med_metformin',
+    pharmacyId: 'pharm_musanze_life',
+    quantity: 52,
+    price: 2500,
+    updatedAt: '8 min ago',
+  },
+  {
+    id: 'inv_3',
+    medicineId: 'med_paracetamol',
+    pharmacyId: 'pharm_kigali_care',
+    quantity: 85,
+    price: 1000,
+    updatedAt: '12 min ago',
+  },
+  {
+    id: 'inv_4',
+    medicineId: 'med_salbutamol',
+    pharmacyId: 'pharm_huye_health',
+    quantity: 18,
+    price: 4100,
+    updatedAt: '1 hr ago',
+  },
+]

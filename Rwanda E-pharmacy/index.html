@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Rwanda E-Pharmacy helps patients find prescribed medicines from verified pharmacies, compare prices, check insurance support, reserve stock, and request safe delivery."
+    />
+    <title>Rwanda E-Pharmacy | Find Medicine Before You Travel</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="#top" aria-label="Rwanda E-Pharmacy home">
+        <span class="brand-mark">RE</span>
+        <span>
+          <strong>Rwanda E-Pharmacy</strong>
+          <small>Medicine access network</small>
+        </span>
+      </a>
+      <button class="nav-toggle" type="button" aria-label="Open navigation" aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <nav class="main-nav" aria-label="Primary navigation">
+        <a href="#finder">Find medicine</a>
+        <a href="#platform">Platform</a>
+        <a href="#stakeholders">Stakeholders</a>
+        <a href="#roadmap">Roadmap</a>
+        <a class="nav-cta" href="#pilot">Pilot with us</a>
+      </nav>
+    </header>
+
+    <main id="top">
+      <section class="hero section-band">
+        <div class="hero-copy">
+          <p class="eyebrow">Verified pharmacies. Transparent prices. Insurance-aware access.</p>
+          <h1>Find the medicine before you travel.</h1>
+          <p class="hero-text">
+            Rwanda E-Pharmacy connects patients with licensed pharmacies that have prescribed
+            medicines in stock, shows price and insurance support, and enables safe reservation or
+            delivery where permitted.
+          </p>
+          <div class="hero-actions">
+            <a class="button primary" href="#finder">Search demo medicines</a>
+            <a class="button secondary" href="#platform">See the platform</a>
+          </div>
+          <div class="trust-row" aria-label="Project trust signals">
+            <span>Pharmacy verification</span>
+            <span>Prescription workflow</span>
+            <span>Stock intelligence</span>
+          </div>
+        </div>
+        <div class="hero-media">
+          <img src="assets/hero-pharmacy.png" alt="Patient using a digital pharmacy medicine search with a pharmacist nearby" />
+        </div>
+      </section>
+
+      <section class="stats-strip" aria-label="Platform highlights">
+        <div>
+          <strong>8</strong>
+          <span>core stakeholder portals</span>
+        </div>
+        <div>
+          <strong>24 mo</strong>
+          <span>roadmap to national scale</span>
+        </div>
+        <div>
+          <strong>100+</strong>
+          <span>MVP priority medicines</span>
+        </div>
+        <div>
+          <strong>20-50</strong>
+          <span>pilot pharmacies</span>
+        </div>
+      </section>
+
+      <section class="finder section" id="finder">
+        <div class="section-heading">
+          <p class="eyebrow">Patient product demo</p>
+          <h2>Search medicine availability in real time</h2>
+          <p>
+            Try the demo search. Results show verified pharmacies, stock, price, insurance support,
+            distance, and delivery eligibility.
+          </p>
+        </div>
+
+        <div class="finder-shell">
+          <form class="search-panel" id="medicine-search">
+            <label for="medicine-input">Medicine or prescription item</label>
+            <div class="search-control">
+              <input
+                id="medicine-input"
+                name="medicine"
+                type="search"
+                placeholder="Search Paracetamol, Amlodipine, Metformin..."
+                autocomplete="off"
+              />
+              <button type="submit">Search</button>
+            </div>
+            <div class="filters" aria-label="Search filters">
+              <label>
+                District
+                <select id="district-filter">
+                  <option value="all">All districts</option>
+                  <option value="Kigali">Kigali</option>
+                  <option value="Huye">Huye</option>
+                  <option value="Musanze">Musanze</option>
+                  <option value="Rubavu">Rubavu</option>
+                </select>
+              </label>
+              <label>
+                Insurance
+                <select id="insurance-filter">
+                  <option value="all">Any insurance</option>
+                  <option value="Mutuelle">Mutuelle de Sante</option>
+                  <option value="RSSB">RSSB/RAMA</option>
+                  <option value="MMI">MMI</option>
+                  <option value="Private">Private insurance</option>
+                </select>
+              </label>
+              <label class="checkbox-label">
+                <input id="delivery-filter" type="checkbox" />
+                Delivery available
+              </label>
+            </div>
+            <div class="quick-meds" aria-label="Quick medicine searches">
+              <button type="button" data-medicine="Amlodipine">Amlodipine</button>
+              <button type="button" data-medicine="Metformin">Metformin</button>
+              <button type="button" data-medicine="Paracetamol">Paracetamol</button>
+              <button type="button" data-medicine="Salbutamol">Salbutamol</button>
+            </div>
+          </form>
+
+          <div class="results-panel">
+            <div class="results-header">
+              <span id="result-count">0 verified results</span>
+              <button class="text-button" id="upload-prescription" type="button">Upload prescription</button>
+            </div>
+            <div class="prescription-card" id="prescription-card" hidden>
+              <strong>Prescription upload demo</strong>
+              <p>
+                In production, prescriptions are stored privately, reviewed by pharmacists, and
+                audited whenever accessed.
+              </p>
+              <label class="fake-upload">
+                <input type="file" accept="image/*,.pdf" />
+                Choose prescription file
+              </label>
+            </div>
+            <div class="result-list" id="result-list"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="platform">
+        <div class="section-heading">
+          <p class="eyebrow">Full production platform</p>
+          <h2>More than frontend and backend</h2>
+          <p>
+            A real health product needs the full stack: permissions, security, infrastructure,
+            observability, recovery, and operational controls.
+          </p>
+        </div>
+        <div class="stack-grid">
+          <article>
+            <span>01</span>
+            <h3>Patient experience</h3>
+            <p>Medicine search, prescription upload, pharmacy comparison, insurance support, reservation, and delivery request.</p>
+          </article>
+          <article>
+            <span>02</span>
+            <h3>Pharmacy operations</h3>
+            <p>Verified pharmacy onboarding, inventory management, expiry tracking, low-stock alerts, and reservation confirmation.</p>
+          </article>
+          <article>
+            <span>03</span>
+            <h3>Medical safety</h3>
+            <p>Pharmacist review, prescription access logs, restricted medicine rules, safe delivery eligibility, and audit trails.</p>
+          </article>
+          <article>
+            <span>04</span>
+            <h3>Data platform</h3>
+            <p>Aggregated demand, stock-out patterns, price range monitoring, pharmacy data quality, and institution dashboards.</p>
+          </article>
+          <article>
+            <span>05</span>
+            <h3>Production engineering</h3>
+            <p>Auth, APIs, database, object storage, rate limits, caching, CI/CD, logs, monitoring, backups, and recovery.</p>
+          </article>
+          <article>
+            <span>06</span>
+            <h3>Business engine</h3>
+            <p>Pharmacy SaaS, delivery fees, institutional analytics, ethical health ads, and integration services.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section alt" id="stakeholders">
+        <div class="section-heading">
+          <p class="eyebrow">Built for the whole health ecosystem</p>
+          <h2>Every stakeholder gets a useful product</h2>
+        </div>
+        <div class="tabs" role="tablist" aria-label="Stakeholder value">
+          <button class="tab active" type="button" data-tab="patients">Patients</button>
+          <button class="tab" type="button" data-tab="pharmacies">Pharmacies</button>
+          <button class="tab" type="button" data-tab="insurers">Insurers</button>
+          <button class="tab" type="button" data-tab="government">Government</button>
+        </div>
+        <div class="tab-panel" id="tab-panel"></div>
+      </section>
+
+      <section class="section split">
+        <div>
+          <p class="eyebrow">Medical and regulatory design</p>
+          <h2>Safe medicine access comes first</h2>
+          <p>
+            Rwanda E-Pharmacy is designed around licensed pharmacy participation, prescription
+            control, responsible professional oversight, private health data, and pharmacy
+            verification.
+          </p>
+          <ul class="check-list">
+            <li>Verified pharmacies before public listing</li>
+            <li>Prescription-only medicines require pharmacist confirmation</li>
+            <li>Stock freshness score and last-updated timestamps</li>
+            <li>Private prescription storage and signed access links</li>
+            <li>Aggregated analytics with patient identity removed</li>
+          </ul>
+        </div>
+        <div class="compliance-card">
+          <h3>Launch compliance checklist</h3>
+          <div class="progress-line"><span style="width: 72%"></span></div>
+          <p>Regulatory review, privacy policy, pharmacy SOP, delivery SOP, data sharing agreements, and incident response plan.</p>
+        </div>
+      </section>
+
+      <section class="section" id="roadmap">
+        <div class="section-heading">
+          <p class="eyebrow">24-month rollout</p>
+          <h2>From pilot to national readiness</h2>
+        </div>
+        <div class="timeline">
+          <div>
+            <strong>Months 1-2</strong>
+            <h3>Validation</h3>
+            <p>Patient, pharmacy, insurer, and regulator discovery. Build investor-grade demo.</p>
+          </div>
+          <div>
+            <strong>Months 3-4</strong>
+            <h3>MVP foundation</h3>
+            <p>Auth, medicine database, pharmacy verification, inventory, search, prescription upload.</p>
+          </div>
+          <div>
+            <strong>Months 5-6</strong>
+            <h3>Pilot launch</h3>
+            <p>20-50 pharmacies, public search, reservation workflow, impact report.</p>
+          </div>
+          <div>
+            <strong>Months 7-12</strong>
+            <h3>Insurance and analytics</h3>
+            <p>Coverage rules, delivery flow, chronic refills, government dashboards, revenue pilots.</p>
+          </div>
+          <div>
+            <strong>Months 13-24</strong>
+            <h3>Scale and national readiness</h3>
+            <p>Regional expansion, integrations, multilingual support, compliance audits, hardened infrastructure.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section pilot" id="pilot">
+        <div>
+          <p class="eyebrow">Pilot-ready proposal</p>
+          <h2>Start with Kigali plus one province district</h2>
+          <p>
+            Launch a controlled pilot with verified pharmacies, priority medicines, patient support,
+            and monthly medication access reports.
+          </p>
+        </div>
+        <form class="pilot-form" id="pilot-form">
+          <label>
+            Your role
+            <select required>
+              <option value="">Select role</option>
+              <option>Pharmacy</option>
+              <option>Hospital or clinic</option>
+              <option>Insurance company</option>
+              <option>Government or institution</option>
+              <option>Investor or grant partner</option>
+            </select>
+          </label>
+          <label>
+            Organization
+            <input type="text" placeholder="Example: Kigali Health Partner" required />
+          </label>
+          <label>
+            What do you want to pilot?
+            <textarea placeholder="Medicine search, stock management, delivery, analytics..." rows="4"></textarea>
+          </label>
+          <button class="button primary" type="submit">Prepare pilot request</button>
+          <p class="form-note" id="form-note" role="status"></p>
+        </form>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div>
+        <strong>Rwanda E-Pharmacy</strong>
+        <p>Market-ready medicine access platform for patients, pharmacies, insurers, and health institutions.</p>
+      </div>
+      <div>
+        <span>Built as a product demo</span>
+        <span>Business + medical + full-stack architecture</span>
+      </div>
+    </footer>
+
+    <script src="app.js"></script>
+  </body>
+</html>

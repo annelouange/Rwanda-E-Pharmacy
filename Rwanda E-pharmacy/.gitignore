@@ -1,0 +1,14 @@
+node_modules/
+dist/
+.env
+.env.local
+uploads/
+*.log
+frontend/dist/
+backend/dist/
+.chrome-test-profile/
+.chrome-test-profile-9233/
+frontend/*check.png
+frontend/*preview.png
+frontend/test-prescription.pdf
+frontend/prescription-*.png

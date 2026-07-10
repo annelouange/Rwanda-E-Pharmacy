@@ -1,0 +1,251 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  PATIENT
+  CAREGIVER
+  PHARMACIST
+  PHARMACY_MANAGER
+  INSURANCE_OFFICER
+  DELIVERY_AGENT
+  GOVERNMENT_ANALYST
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum PharmacyStatus {
+  PENDING_VERIFICATION
+  VERIFIED
+  REJECTED
+  SUSPENDED
+}
+
+enum ReservationStatus {
+  REQUESTED
+  CONFIRMED
+  READY_FOR_PICKUP
+  COMPLETED
+  CANCELLED
+}
+
+enum DeliveryStatus {
+  REQUESTED
+  ACCEPTED
+  PICKED_UP
+  IN_TRANSIT
+  DELIVERED
+  CANCELLED
+}
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  phone        String?   @unique
+  passwordHash String
+  role         UserRole
+  fullName     String
+  isActive     Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  patient      Patient?
+  auditLogs    AuditLog[]
+}
+
+model Patient {
+  id            String    @id @default(cuid())
+  userId        String    @unique
+  dateOfBirth   DateTime?
+  district      String?
+  insuranceName String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  prescriptions Prescription[]
+  reservations  Reservation[]
+}
+
+model Pharmacy {
+  id                 String         @id @default(cuid())
+  name               String
+  licenseNumber      String         @unique
+  contactEmail       String
+  contactPhone       String
+  district           String
+  sector             String
+  latitude           Float
+  longitude          Float
+  status             PharmacyStatus @default(PENDING_VERIFICATION)
+  isVerified         Boolean        @default(false)
+  allowsDelivery     Boolean        @default(false)
+  acceptedInsurance  String[]       @default([])
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+
+  inventory          PharmacyInventory[]
+  reservations       Reservation[]
+
+  @@index([district])
+  @@index([status])
+}
+
+model Medicine {
+  id                   String    @id @default(cuid())
+  name                 String
+  genericName          String
+  category             String
+  dosageForm           String?
+  strength             String?
+  prescriptionRequired Boolean   @default(false)
+  coldChainRequired    Boolean   @default(false)
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  inventory            PharmacyInventory[]
+  prescriptionItems    PrescriptionItem[]
+
+  @@index([name])
+  @@index([genericName])
+  @@index([category])
+}
+
+model PharmacyInventory {
+  id          String    @id @default(cuid())
+  pharmacyId  String
+  medicineId  String
+  quantity    Int
+  price       Float
+  batchNumber String?
+  expiresAt   DateTime?
+  updatedAt   DateTime  @updatedAt
+  createdAt   DateTime  @default(now())
+
+  pharmacy    Pharmacy  @relation(fields: [pharmacyId], references: [id], onDelete: Cascade)
+  medicine    Medicine  @relation(fields: [medicineId], references: [id])
+  items       ReservationItem[]
+
+  @@unique([pharmacyId, medicineId])
+  @@index([quantity])
+}
+
+model Prescription {
+  id           String    @id @default(cuid())
+  patientId    String
+  fileUrl      String
+  status       String    @default("UPLOADED")
+  hospitalName String?
+  doctorName   String?
+  uploadedAt   DateTime  @default(now())
+
+  patient      Patient   @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  items        PrescriptionItem[]
+}
+
+model PrescriptionItem {
+  id             String       @id @default(cuid())
+  prescriptionId String
+  medicineId     String
+  dosage          String?
+  quantity        Int?
+
+  prescription    Prescription @relation(fields: [prescriptionId], references: [id], onDelete: Cascade)
+  medicine        Medicine     @relation(fields: [medicineId], references: [id])
+}
+
+model Reservation {
+  id             String            @id @default(cuid())
+  patientId      String
+  pharmacyId     String
+  status         ReservationStatus @default(REQUESTED)
+  totalPrice     Float
+  deliveryNeeded Boolean           @default(false)
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  patient        Patient           @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  pharmacy       Pharmacy          @relation(fields: [pharmacyId], references: [id])
+  items          ReservationItem[]
+  delivery       DeliveryRequest?
+}
+
+model ReservationItem {
+  id            String            @id @default(cuid())
+  reservationId String
+  inventoryId   String
+  quantity      Int
+  pricePerUnit  Float
+
+  reservation   Reservation       @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  inventory     PharmacyInventory @relation(fields: [inventoryId], references: [id])
+}
+
+model DeliveryRequest {
+  id            String         @id @default(cuid())
+  reservationId String         @unique
+  status        DeliveryStatus @default(REQUESTED)
+  address       String
+  phone         String
+  deliveryFee   Float
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  reservation   Reservation    @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+}
+
+model InsuranceCompany {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  type        String
+  contactEmail String?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Advertisement {
+  id          String    @id @default(cuid())
+  title       String
+  companyName String
+  category    String
+  status      String    @default("PENDING_APPROVAL")
+  imageUrl    String?
+  startDate   DateTime?
+  endDate     DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model AnalyticsEvent {
+  id         String   @id @default(cuid())
+  eventType  String
+  district   String?
+  medicineId String?
+  pharmacyId String?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  @@index([eventType])
+  @@index([createdAt])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String?
+  action     String
+  entityType String
+  entityId   String?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([action])
+  @@index([entityType])
+}
