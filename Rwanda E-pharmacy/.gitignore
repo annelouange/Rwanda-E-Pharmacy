@@ -8,6 +8,7 @@ frontend/dist/
 backend/dist/
 .chrome-test-profile/
 .chrome-test-profile-9233/
+.chrome-test-profile*/
 frontend/*check.png
 frontend/*preview.png
 frontend/test-prescription.pdf
