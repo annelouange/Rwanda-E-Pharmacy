@@ -34,7 +34,7 @@ import mohLogo from './assets/partner-moh.png'
 import rbcLogo from './assets/partner-rbc.png'
 import './index.css'
 
-type Role = 'pharmacy' | 'government' | 'insurance' | 'admin'
+type Role = 'patient' | 'pharmacy' | 'government' | 'insurance' | 'admin'
 
 type Listing = {
   medicine: string
@@ -508,6 +508,11 @@ const coverageRows = [
 ]
 
 const roleCopy: Record<Role, { title: string; description: string; bullets: string[] }> = {
+  patient: {
+    title: 'Patient Access',
+    description: 'Sign in to search medicines, use the live map, upload prescriptions, reserve stock, and request delivery.',
+    bullets: ['Find nearest pharmacy with stock', 'Upload prescription for matching', 'Reserve medicine safely'],
+  },
   pharmacy: {
     title: 'Pharmacy Portal',
     description: 'Manage stock, reservations, prices, alerts, expiry, insurance partners, and verified pharmacy profile.',
@@ -566,7 +571,17 @@ function delay(milliseconds: number) {
 function App() {
   const [path, setPath] = useState(window.location.pathname)
   const [searchParams, setSearchParams] = useState(new URLSearchParams(window.location.search))
-  const [activeRole, setActiveRole] = useState<Role | null>(null)
+  const [activeRole, setActiveRoleState] = useState<Role | null>(() => {
+    const savedRole = window.localStorage.getItem('rwanda-epharmacy-role')
+    return savedRole && ['patient', 'pharmacy', 'government', 'insurance', 'admin'].includes(savedRole)
+      ? (savedRole as Role)
+      : null
+  })
+
+  function setActiveRole(role: Role) {
+    window.localStorage.setItem('rwanda-epharmacy-role', role)
+    setActiveRoleState(role)
+  }
 
   function navigate(to: string) {
     window.history.pushState({}, '', to)
@@ -581,7 +596,7 @@ function App() {
   }
 
   if (path === '/login') {
-    const role = (searchParams.get('role') || 'pharmacy') as Role
+    const role = (searchParams.get('role') || 'patient') as Role
     return <LoginPage key={role} navigate={navigate} role={role} setActiveRole={setActiveRole} />
   }
 
@@ -589,10 +604,10 @@ function App() {
     return <Dashboard navigate={navigate} role={activeRole || 'pharmacy'} />
   }
 
-  return <LandingPage navigate={navigate} />
+  return <LandingPage navigate={navigate} activeRole={activeRole} />
 }
 
-function LandingPage({ navigate }: { navigate: (to: string) => void }) {
+function LandingPage({ navigate, activeRole }: { navigate: (to: string) => void; activeRole: Role | null }) {
   const [query, setQuery] = useState('Amlodipine')
   const [district, setDistrict] = useState('All')
   const [insurance, setInsurance] = useState('All')
@@ -612,6 +627,7 @@ function LandingPage({ navigate }: { navigate: (to: string) => void }) {
   const [locationStatus, setLocationStatus] = useState(
     'Tap GPS to sort by pharmacies nearest to your current location.',
   )
+  const patientSignedIn = activeRole === 'patient'
 
   useEffect(() => {
     return () => {
@@ -835,18 +851,18 @@ function LandingPage({ navigate }: { navigate: (to: string) => void }) {
       <section className="hero premium-hero" id="top">
         <div className="hero-copy">
           <p className="eyebrow">National medicine access platform</p>
-          <h1>Find available medicine before you travel.</h1>
+          <h1>Find medicine before you travel.</h1>
           <p>
             Rwanda E-Pharmacy connects patients to verified pharmacies, live stock,
             transparent prices, insurance support, prescription assistance, and medicine
             access intelligence for health institutions.
           </p>
           <div className="actions">
-            <button className="button primary" type="button" onClick={focusSearch}>
-              Search medicines
+            <button className="button primary" type="button" onClick={() => navigate('/login?role=patient')}>
+              Patient sign in
             </button>
-            <button className="button secondary" type="button" onClick={() => navigate('/login?role=pharmacy')}>
-              Pharmacy login
+            <button className="button secondary" type="button" onClick={focusSearch}>
+              View map preview
             </button>
           </div>
           <div className="trust-list">
@@ -919,100 +935,112 @@ function LandingPage({ navigate }: { navigate: (to: string) => void }) {
 
       <section className="section" id="search">
         <div className="section-heading">
-          <p className="eyebrow">Search medicines</p>
-          <h2>Find the nearest pharmacy with available medicine</h2>
+          <p className="eyebrow">Medicine access map</p>
+          <h2>{patientSignedIn ? 'Find the nearest pharmacy with available medicine' : 'Preview verified pharmacy coverage'}</h2>
           <p>
-            Search by medicine name, choose your insurance, use GPS, and see
-            pharmacies that currently show available stock.
+            {patientSignedIn
+              ? 'Search by medicine name, choose your insurance, use GPS, and see pharmacies that currently show available stock.'
+              : 'The public homepage shows pharmacy coverage. Sign in as a patient to search medicines, upload prescriptions, reserve stock, and use GPS matching.'}
           </p>
         </div>
 
         <div className="finder-layout">
           <aside className="search-card">
-            <label>
-              Medicine name
-              <div className="input-icon">
-                <Search size={18} />
-                <input
-                  list="medicine-options"
-                  value={query}
-                  onChange={(event) => setQuery(event.target.value)}
-                  placeholder="Search medicine..."
-                />
-                <datalist id="medicine-options">
-                  {Array.from(new Set(listings.map((listing) => listing.medicine)))
-                    .sort()
-                    .map((medicine) => (
-                      <option value={medicine} key={medicine} />
+            {patientSignedIn ? (
+              <>
+                <label>
+                  Medicine name
+                  <div className="input-icon">
+                    <Search size={18} />
+                    <input
+                      list="medicine-options"
+                      value={query}
+                      onChange={(event) => setQuery(event.target.value)}
+                      placeholder="Search medicine..."
+                    />
+                    <datalist id="medicine-options">
+                      {uniqueMedicines.map((medicine) => (
+                        <option value={medicine} key={medicine} />
+                      ))}
+                    </datalist>
+                  </div>
+                </label>
+                <label>
+                  District
+                  <select value={district} onChange={(event) => updateDistrict(event.target.value)}>
+                    {districtOptions.map((districtOption) => (
+                      <option key={districtOption}>{districtOption}</option>
                     ))}
-                </datalist>
-              </div>
-            </label>
-            <label>
-              District
-              <select value={district} onChange={(event) => updateDistrict(event.target.value)}>
-                {districtOptions.map((districtOption) => (
-                  <option key={districtOption}>{districtOption}</option>
-                ))}
-              </select>
-            </label>
-            <label>
-              Insurance
-              <select value={insurance} onChange={(event) => setInsurance(event.target.value)}>
-                {insuranceOptions.map((insuranceOption) => (
-                  <option key={insuranceOption}>{insuranceOption}</option>
-                ))}
-              </select>
-            </label>
-            <label className="checkbox">
-              <input checked={deliveryOnly} type="checkbox" onChange={(event) => setDeliveryOnly(event.target.checked)} />
-              Delivery available
-            </label>
-            <div className="location-box">
-              <button className="button primary" type="button" onClick={requestLiveLocation}>
-                <MapPin size={18} />
-                Use my live GPS location
-              </button>
-              <p>{locationStatus}</p>
-              {userLocation ? (
-                <small>
-                  Current GPS: {userLocation.latitude.toFixed(5)}, {userLocation.longitude.toFixed(5)}
-                </small>
-              ) : null}
-            </div>
-            <button className="upload-trigger" type="button" onClick={() => setShowUpload((value) => !value)}>
-              <UploadCloud size={20} />
-              Upload prescription
-            </button>
-            {showUpload ? (
-              <div className="upload-box">
-                <Camera size={20} />
-                <strong>Upload prescription</strong>
-                <p>Upload your prescription and we will help match the medicines to pharmacies that have stock.</p>
-                <input type="file" accept="image/*,.pdf" onChange={handlePrescriptionUpload} />
-                {uploadStageIndex !== null ? (
-                  <div className="upload-progress" aria-live="polite">
-                    <div className="progress-topline">
-                      <strong>{prescriptionStages[uploadStageIndex].label}</strong>
-                      <span>{uploadProgress}%</span>
-                    </div>
-                    <div className="progress-bar">
-                      <span style={{ width: `${uploadProgress}%` }}></span>
-                    </div>
-                    <p>{prescriptionStages[uploadStageIndex].detail}</p>
-                    {prescriptionFile ? <small>{prescriptionFile}</small> : null}
+                  </select>
+                </label>
+                <label>
+                  Insurance
+                  <select value={insurance} onChange={(event) => setInsurance(event.target.value)}>
+                    {insuranceOptions.map((insuranceOption) => (
+                      <option key={insuranceOption}>{insuranceOption}</option>
+                    ))}
+                  </select>
+                </label>
+                <label className="checkbox">
+                  <input checked={deliveryOnly} type="checkbox" onChange={(event) => setDeliveryOnly(event.target.checked)} />
+                  Delivery available
+                </label>
+                <div className="location-box">
+                  <button className="button primary" type="button" onClick={requestLiveLocation}>
+                    <MapPin size={18} />
+                    Use my live GPS location
+                  </button>
+                  <p>{locationStatus}</p>
+                  {userLocation ? (
+                    <small>
+                      Current GPS: {userLocation.latitude.toFixed(5)}, {userLocation.longitude.toFixed(5)}
+                    </small>
+                  ) : null}
+                </div>
+                <button className="upload-trigger" type="button" onClick={() => setShowUpload((value) => !value)}>
+                  <UploadCloud size={20} />
+                  Upload prescription
+                </button>
+                {showUpload ? (
+                  <div className="upload-box">
+                    <Camera size={20} />
+                    <strong>Upload prescription</strong>
+                    <p>Upload your prescription and we will help match the medicines to pharmacies that have stock.</p>
+                    <input type="file" accept="image/*,.pdf" onChange={handlePrescriptionUpload} />
+                    {uploadStageIndex !== null ? (
+                      <div className="upload-progress" aria-live="polite">
+                        <div className="progress-topline">
+                          <strong>{prescriptionStages[uploadStageIndex].label}</strong>
+                          <span>{uploadProgress}%</span>
+                        </div>
+                        <div className="progress-bar">
+                          <span style={{ width: `${uploadProgress}%` }}></span>
+                        </div>
+                        <p>{prescriptionStages[uploadStageIndex].detail}</p>
+                        {prescriptionFile ? <small>{prescriptionFile}</small> : null}
+                      </div>
+                    ) : null}
+                    {prescriptionMessage ? <p className="upload-message">{prescriptionMessage}</p> : null}
+                    {prescriptionMedicines.length ? (
+                      <div className="medicine-chips" aria-label="Detected medicines">
+                        {prescriptionMedicines.map((medicine) => (
+                          <span key={medicine.id}>{medicine.name}</span>
+                        ))}
+                      </div>
+                    ) : null}
                   </div>
                 ) : null}
-                {prescriptionMessage ? <p className="upload-message">{prescriptionMessage}</p> : null}
-                {prescriptionMedicines.length ? (
-                  <div className="medicine-chips" aria-label="Detected medicines">
-                    {prescriptionMedicines.map((medicine) => (
-                      <span key={medicine.id}>{medicine.name}</span>
-                    ))}
-                  </div>
-                ) : null}
+              </>
+            ) : (
+              <div className="patient-gate">
+                <ShieldCheck size={28} />
+                <h3>Patient sign-in required</h3>
+                <p>Sign in to search medicines, upload prescriptions, use live GPS matching, reserve stock, and request delivery.</p>
+                <button className="button primary" type="button" onClick={() => navigate('/login?role=patient')}>
+                  Sign in as patient
+                </button>
               </div>
-            ) : null}
+            )}
           </aside>
 
           <div className="results">
@@ -1031,12 +1059,14 @@ function LandingPage({ navigate }: { navigate: (to: string) => void }) {
               userLocation={userLocation}
               selectedPharmacy={selectedPharmacy}
               setSelectedPharmacy={setSelectedPharmacy}
-              requestLiveLocation={requestLiveLocation}
+              requestLiveLocation={patientSignedIn ? requestLiveLocation : () => navigate('/login?role=patient')}
             />
             {selectedListing ? (
               <PharmacyDetailPanel
                 listing={selectedListing}
+                patientSignedIn={patientSignedIn}
                 onReserve={() => openReservation(selectedListing)}
+                onSignIn={() => navigate('/login?role=patient')}
               />
             ) : null}
             {results.length ? (
@@ -1047,7 +1077,9 @@ function LandingPage({ navigate }: { navigate: (to: string) => void }) {
                   locationSource={locationSource}
                   isSelected={selectedPharmacy === listing.pharmacy}
                   onSelect={() => setSelectedPharmacy(listing.pharmacy)}
+                  patientSignedIn={patientSignedIn}
                   onReserve={() => openReservation(listing)}
+                  onSignIn={() => navigate('/login?role=patient')}
                 />
               ))
             ) : (
@@ -1098,7 +1130,7 @@ function LandingPage({ navigate }: { navigate: (to: string) => void }) {
         </div>
         <div className="workflow-grid">
           {[
-            ['1', 'Search or upload', 'Patient types a medicine name or uploads a prescription for medicine matching.'],
+            ['1', 'Sign in', 'Patient signs in before searching medicines or uploading a prescription.'],
             ['2', 'Match stock', 'The platform checks verified pharmacy stock, prices, insurance support, and delivery status.'],
             ['3', 'Choose pharmacy', 'Patient selects the nearest available pharmacy, calls, gets directions, or reserves.'],
             ['4', 'Confirm and learn', 'Pharmacies confirm requests while anonymized trends support institutions and policy.'],
@@ -1122,6 +1154,12 @@ function LandingPage({ navigate }: { navigate: (to: string) => void }) {
           </p>
         </div>
         <div className="portal-grid">
+          <PortalCard
+            icon={<MapPin />}
+            title="Patient Access"
+            text="Search medicines, upload prescriptions, use the map, reserve stock, and request delivery."
+            onClick={() => navigate('/login?role=patient')}
+          />
           <PortalCard
             icon={<ShoppingBag />}
             title="Pharmacy Login"
@@ -1209,10 +1247,10 @@ function Header({ navigate }: { navigate: (to: string) => void }) {
         <img src={logoImage} alt="Rwanda E-Pharmacy logo" />
       </button>
       <nav aria-label="Main navigation">
-        <a href="#search">Search Medicines</a>
+        <a href="#search">Map Preview</a>
         <a href="#portals">Portals</a>
         <a href="#analytics">Analytics</a>
-        <button type="button" onClick={() => navigate('/login?role=pharmacy')}>Login</button>
+        <button type="button" onClick={() => navigate('/login?role=patient')}>Login</button>
       </nav>
     </header>
   )
@@ -1335,13 +1373,17 @@ function PhaseOneListingCard({
   locationSource,
   isSelected,
   onSelect,
+  patientSignedIn,
   onReserve,
+  onSignIn,
 }: {
   listing: SearchResult
   locationSource: LocationSource
   isSelected: boolean
   onSelect: () => void
+  patientSignedIn: boolean
   onReserve: () => void
+  onSignIn: () => void
 }) {
   const directionsUrl = `https://www.google.com/maps/search/?api=1&query=${listing.latitude},${listing.longitude}`
 
@@ -1371,8 +1413,8 @@ function PhaseOneListingCard({
         <button type="button" onClick={onSelect}>
           {isSelected ? 'Selected' : 'Select pharmacy'}
         </button>
-        <button className="secondary-action" type="button" onClick={onReserve}>
-          Reserve
+        <button className="secondary-action" type="button" onClick={patientSignedIn ? onReserve : onSignIn}>
+          {patientSignedIn ? 'Reserve' : 'Sign in'}
         </button>
         <a className="secondary-action" href={directionsUrl} target="_blank" rel="noreferrer">
           Directions
@@ -1384,10 +1426,14 @@ function PhaseOneListingCard({
 
 function PharmacyDetailPanel({
   listing,
+  patientSignedIn,
   onReserve,
+  onSignIn,
 }: {
   listing: SearchResult
+  patientSignedIn: boolean
   onReserve: () => void
+  onSignIn: () => void
 }) {
   const directionsUrl = `https://www.google.com/maps/search/?api=1&query=${listing.latitude},${listing.longitude}`
 
@@ -1420,8 +1466,8 @@ function PharmacyDetailPanel({
         </div>
       </div>
       <div className="detail-actions">
-        <button className="button primary" type="button" onClick={onReserve}>
-          Reserve medicine
+        <button className="button primary" type="button" onClick={patientSignedIn ? onReserve : onSignIn}>
+          {patientSignedIn ? 'Reserve medicine' : 'Sign in to reserve'}
         </button>
         <a className="button secondary" href="tel:+250788000000">
           <Phone size={18} /> Call pharmacy
@@ -1568,7 +1614,7 @@ function LoginPage({
           <LockKeyhole size={28} />
           <h2>Login</h2>
           <div className="role-switch">
-            {(['pharmacy', 'government', 'insurance', 'admin'] as Role[]).map((option) => (
+            {(['patient', 'pharmacy', 'government', 'insurance', 'admin'] as Role[]).map((option) => (
               <button
                 className={selectedRole === option ? 'active' : ''}
                 type="button"
@@ -1609,6 +1655,12 @@ function LoginPage({
 function Dashboard({ navigate, role }: { navigate: (to: string) => void; role: Role }) {
   const copy = roleCopy[role]
   const dashboardMetrics = {
+    patient: [
+      ['Medicines tracked', String(uniqueMedicines.length), <Search />],
+      ['Verified pharmacies', String(uniquePharmacies.length), <ShieldCheck />],
+      ['Delivery options', String(deliveryEnabledCount), <Truck />],
+      ['Districts covered', String(activeDistricts.length), <MapPin />],
+    ],
     pharmacy: [
       ['Stock records', String(listings.length), <ShoppingBag />],
       ['Low-stock alerts', String(lowStockItems.length), <Activity />],
@@ -1699,6 +1751,37 @@ function RoleWorkspace({ role }: { role: Role }) {
           <OperationsTable
             title="Reservation queue"
             rows={reservationQueue.map((item) => [item.patient, item.medicine, item.time, item.status])}
+          />
+        </div>
+      </section>
+    )
+  }
+
+  if (role === 'patient') {
+    return (
+      <section className="section operations-section">
+        <div className="section-heading">
+          <p className="eyebrow">Patient medicine access</p>
+          <h2>Your signed-in access is ready</h2>
+          <p>Return to the public map to search medicines, upload a prescription, use GPS, and reserve stock.</p>
+        </div>
+        <div className="operations-grid">
+          <OperationsTable
+            title="Recommended searches"
+            rows={listings.slice(0, 5).map((listing) => [
+              listing.medicine,
+              listing.pharmacy,
+              listing.district,
+              formatCurrency(listing.price),
+            ])}
+          />
+          <OperationsTable
+            title="Patient actions"
+            rows={[
+              ['Search medicine', 'Use filters', 'Compare prices', 'Reserve stock'],
+              ['Upload prescription', 'Read medicines', 'Match pharmacies', 'Confirm request'],
+              ['Use GPS', 'Nearest stock', 'Directions', 'Delivery when eligible'],
+            ]}
           />
         </div>
       </section>
