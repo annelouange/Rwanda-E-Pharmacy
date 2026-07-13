@@ -854,8 +854,7 @@ function LandingPage({ navigate, activeRole }: { navigate: (to: string) => void;
           <h1>Find medicine before you travel.</h1>
           <p>
             Rwanda E-Pharmacy connects patients to verified pharmacies, live stock,
-            transparent prices, insurance support, prescription assistance, and medicine
-            access intelligence for health institutions.
+            transparent prices, insurance support, and prescription assistance.
           </p>
           <div className="actions">
             <button className="button primary" type="button" onClick={() => navigate('/login?role=patient')}>
@@ -875,12 +874,6 @@ function LandingPage({ navigate, activeRole }: { navigate: (to: string) => void;
             <span>
               <Stethoscope size={16} /> Prescription support
             </span>
-          </div>
-          <div className="hero-location">
-            <button type="button" onClick={startNearestSearch}>
-              Use live GPS
-            </button>
-            <small>{locationStatus}</small>
           </div>
           <div className="hero-proof">
             <span>{uniquePharmacies.length} verified pharmacies in MVP data</span>
